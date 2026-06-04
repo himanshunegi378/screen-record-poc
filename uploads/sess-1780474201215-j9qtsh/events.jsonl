@@ -1,0 +1,38 @@
+{"sessionId":"sess-1780474201215-j9qtsh","type":"session_initialized","timestamp":"2026-06-03T08:10:01.215Z","metadata":{"sessionId":"sess-1780474201215-j9qtsh"}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"requesting_screen_share","timestamp":"2026-06-03T08:10:01.225Z","metadata":{}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"window_blur","timestamp":"2026-06-03T08:10:01.253Z","metadata":{}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"window_focus","timestamp":"2026-06-03T08:10:03.274Z","metadata":{}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"screen_share_surface_detected","timestamp":"2026-06-03T08:10:03.306Z","metadata":{"displaySurface":"monitor"}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"screen_share_started","timestamp":"2026-06-03T08:10:03.315Z","metadata":{"hasAudio":false,"videoTrackLabel":"screen:362:0"}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"recording_started","timestamp":"2026-06-03T08:10:03.323Z","metadata":{"mimeType":"video/webm"}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"window_blur","timestamp":"2026-06-03T08:10:03.347Z","metadata":{}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"window_focus","timestamp":"2026-06-03T08:10:07.078Z","metadata":{}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"window_blur","timestamp":"2026-06-03T08:10:07.094Z","metadata":{}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"window_focus","timestamp":"2026-06-03T08:10:07.098Z","metadata":{}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"chunk_captured","timestamp":"2026-06-03T08:10:08.378Z","metadata":{"chunkIndex":1,"sizeBytes":1074924,"headerPrepended":false}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"chunk_uploaded","timestamp":"2026-06-03T08:10:08.420Z","metadata":{"chunkIndex":1,"serverPath":"/media/himanshu/New Volume/samta/screen-record-poc/uploads/sess-1780474201215-j9qtsh/chunk-000001.webm"}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"keydown","timestamp":"2026-06-03T08:10:10.395Z","metadata":{"key":"F11","code":"F11","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"resize","timestamp":"2026-06-03T08:10:10.562Z","metadata":{"outerWidth":1920,"outerHeight":1080,"innerWidth":1920,"innerHeight":1080}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"resize","timestamp":"2026-06-03T08:10:11.240Z","metadata":{"outerWidth":1920,"outerHeight":1036,"innerWidth":1920,"innerHeight":915}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"chunk_captured","timestamp":"2026-06-03T08:10:13.399Z","metadata":{"chunkIndex":2,"sizeBytes":2289078,"headerPrepended":true}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"chunk_uploaded","timestamp":"2026-06-03T08:10:13.485Z","metadata":{"chunkIndex":2,"serverPath":"/media/himanshu/New Volume/samta/screen-record-poc/uploads/sess-1780474201215-j9qtsh/chunk-000002.webm"}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"keydown","timestamp":"2026-06-03T08:10:13.539Z","metadata":{"key":"F11","code":"F11","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"resize","timestamp":"2026-06-03T08:10:13.617Z","metadata":{"outerWidth":1920,"outerHeight":1080,"innerWidth":1920,"innerHeight":1080}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"resize","timestamp":"2026-06-03T08:10:15.225Z","metadata":{"outerWidth":1920,"outerHeight":1036,"innerWidth":1920,"innerHeight":915}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"keydown","timestamp":"2026-06-03T08:10:15.973Z","metadata":{"key":"d","code":"KeyD","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"keydown","timestamp":"2026-06-03T08:10:16.182Z","metadata":{"key":"d","code":"KeyD","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"keydown","timestamp":"2026-06-03T08:10:17.033Z","metadata":{"key":"h","code":"KeyH","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"keydown","timestamp":"2026-06-03T08:10:17.095Z","metadata":{"key":"i","code":"KeyI","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"keydown","timestamp":"2026-06-03T08:10:18.011Z","metadata":{"key":"m","code":"KeyM","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"keydown","timestamp":"2026-06-03T08:10:18.066Z","metadata":{"key":"a","code":"KeyA","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"keydown","timestamp":"2026-06-03T08:10:18.293Z","metadata":{"key":"s","code":"KeyS","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"chunk_captured","timestamp":"2026-06-03T08:10:18.420Z","metadata":{"chunkIndex":3,"sizeBytes":2682223,"headerPrepended":true}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"keydown","timestamp":"2026-06-03T08:10:18.454Z","metadata":{"key":"h","code":"KeyH","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"chunk_uploaded","timestamp":"2026-06-03T08:10:18.540Z","metadata":{"chunkIndex":3,"serverPath":"/media/himanshu/New Volume/samta/screen-record-poc/uploads/sess-1780474201215-j9qtsh/chunk-000003.webm"}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"keydown","timestamp":"2026-06-03T08:10:18.619Z","metadata":{"key":"u","code":"KeyU","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"test_ended_by_user","timestamp":"2026-06-03T08:10:21.648Z","metadata":{}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"recording_stopped","timestamp":"2026-06-03T08:10:21.664Z","metadata":{}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"session_completed","timestamp":"2026-06-03T08:10:21.686Z","metadata":{}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"chunk_captured","timestamp":"2026-06-03T08:10:21.708Z","metadata":{"chunkIndex":4,"sizeBytes":1638819,"headerPrepended":true}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"chunk_uploaded","timestamp":"2026-06-03T08:10:21.765Z","metadata":{"chunkIndex":4,"serverPath":"/media/himanshu/New Volume/samta/screen-record-poc/uploads/sess-1780474201215-j9qtsh/chunk-000004.webm"}}
+{"sessionId":"sess-1780474201215-j9qtsh","type":"final_recording_created","timestamp":"2026-06-03T08:12:23.407Z","metadata":{"outputFile":"final-recording.webm","chunksCount":4,"totalSize":7685150}}

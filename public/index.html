@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IntegrityProctor - Test Taking Sandbox POC</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="header-main">
+        <div class="logo-area">
+          <span class="logo-icon">🛡️</span>
+          <h1>IntegrityProctor <span class="badge badge-poc">POC Sandbox</span></h1>
+        </div>
+        <nav class="app-nav">
+          <a href="/sandbox" class="nav-link active" id="navSandbox" data-link>Proctoring Sandbox</a>
+          <a href="/recordings" class="nav-link" id="navRecordings" data-link>Review Dashboard</a>
+        </nav>
+      </div>
+      <div class="warning-banner" id="warningBanner">
+        <span class="warning-icon">⚠️</span>
+        <p>Please share your entire screen for test proctoring. If screen sharing is stopped, the test may be marked for review.</p>
+      </div>
+    </header>
+
+    <!-- VIEW 1: Sandbox Proctoring Page -->
+    <div id="sandboxView" class="view-panel active">
+      <main class="dashboard-grid">
+        <!-- Left Column: Media & Controls -->
+        <section class="control-column">
+          <!-- Session and Controls Card -->
+          <div class="card glass-card control-card">
+            <div class="card-header">
+              <h2>Proctoring Controls</h2>
+              <div class="status-indicators">
+                <span id="screenShareIndicator" class="status-badge status-inactive">Screen Share Off</span>
+                <span id="recordingIndicator" class="status-badge status-inactive">Recording Off</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="session-info">
+                <span class="label">Session ID:</span>
+                <span id="sessionIdVal" class="value select-all">Not generated yet</span>
+              </div>
+              
+              <div class="button-group">
+                <button id="startTestBtn" class="btn btn-primary">Start Test</button>
+                <button id="stopTestBtn" class="btn btn-danger" disabled>Stop Test</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Video Preview Card -->
+          <div class="card glass-card preview-card">
+            <div class="card-header">
+              <h2>Live Proctoring Stream</h2>
+            </div>
+            <div class="card-body video-container">
+              <video id="previewVideo" autoplay playsinline muted></video>
+              <div class="video-placeholder" id="videoPlaceholder">
+                <div class="placeholder-icon">📺</div>
+                <p>Start the test to initiate screen sharing preview</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right Column: Events & Verification -->
+        <section class="log-column">
+          <!-- Log Console -->
+          <div class="card glass-card log-card">
+            <div class="card-header">
+              <h2>Activity & Event Log</h2>
+              <button id="clearLogsBtn" class="btn btn-text">Clear Visual Logs</button>
+            </div>
+            <div class="card-body console-body" id="logConsole">
+              <div class="log-entry system-msg">[SYSTEM] Sandbox initialized. Click "Start Test" to begin the proctoring session.</div>
+            </div>
+          </div>
+
+          <!-- Backend Inspection / Verifier Card -->
+          <div class="card glass-card verify-card">
+            <div class="card-header">
+              <h2>Backend Upload Inspector</h2>
+              <div class="button-row">
+                <button id="refreshChunksBtn" class="btn btn-secondary btn-sm" disabled>Fetch Uploaded Chunks</button>
+                <button id="refreshEventsBtn" class="btn btn-secondary btn-sm" disabled>Fetch Server Log (.jsonl)</button>
+              </div>
+            </div>
+            <div class="card-body inspect-body">
+              <div class="inspect-tabs">
+                <div class="tab-buttons">
+                  <button id="tabChunksBtn" class="tab-btn active">Uploaded Chunks</button>
+                  <button id="tabEventsBtn" class="tab-btn">Server Events (.jsonl)</button>
+                </div>
+                <div class="tab-content" id="tabContent">
+                  <pre class="tab-pane active" id="inspectorContent">Click buttons above to inspect uploads/ folder...</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- VIEW 2: Recordings Listing View -->
+    <div id="recordingsListView" class="view-panel">
+      <div class="view-header">
+        <h2>Proctoring Recordings Review</h2>
+        <p class="view-desc">Select a completed session below to review its video playback synchronized with user actions.</p>
+      </div>
+      <div class="sessions-grid" id="sessionsGrid">
+        <!-- Dynamically populated -->
+      </div>
+      <div class="empty-state" id="recordingsEmptyState" style="display: none;">
+        <div class="empty-icon">📂</div>
+        <h3>No finalized recordings found</h3>
+        <p>Go back to the Sandbox, run a test proctoring session, and stop it to generate a final recording.</p>
+        <a href="/sandbox" class="btn btn-primary" data-link>Go to Sandbox Mode</a>
+      </div>
+    </div>
+
+    <!-- VIEW 3: Detailed Review with Synchronized Video/Timeline -->
+    <div id="reviewSessionView" class="view-panel">
+      <div class="view-header-back">
+        <a href="/recordings" class="btn btn-secondary btn-sm" data-link>← Back to Recordings</a>
+        <h2 id="reviewSessionId">Reviewing Session: -</h2>
+      </div>
+      
+      <div class="review-layout">
+        <!-- Left Column: Video Player & Timeline -->
+        <div class="review-video-column">
+          <div class="card glass-card review-video-card">
+            <div class="card-body player-body">
+              <video id="reviewVideo" controls></video>
+            </div>
+          </div>
+          
+          <div class="card glass-card timeline-card">
+            <div class="card-header">
+              <h2>Interactive Event Timeline</h2>
+              <span class="time-display" id="videoTimeDisplay">00:00 / 00:00</span>
+            </div>
+            <div class="card-body timeline-body">
+              <div class="timeline-container" id="timelineContainer">
+                <div class="timeline-track" id="timelineTrack">
+                  <!-- Event markers populated dynamically -->
+                  <div class="timeline-playhead" id="timelinePlayhead"></div>
+                </div>
+              </div>
+              <div class="timeline-legend">
+                <span class="legend-item"><span class="legend-dot dot-flow"></span> Flow Events</span>
+                <span class="legend-item"><span class="legend-dot dot-interact"></span> Interaction Events</span>
+                <span class="legend-item"><span class="legend-dot dot-warn"></span> Warning Events</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Column: Events List & Metadata Viewer -->
+        <div class="review-events-column">
+          <div class="card glass-card review-events-card">
+            <div class="card-header">
+              <h2>Session Timeline Events</h2>
+            </div>
+            <div class="card-body review-events-body">
+              <div class="events-scroll-container" id="reviewEventsList">
+                <!-- Dynamic events list -->
+              </div>
+            </div>
+          </div>
+          
+          <div class="card glass-card details-card">
+            <div class="card-header">
+              <h2>Event JSON Metadata</h2>
+            </div>
+            <div class="card-body details-body" id="eventMetadataViewer">
+              <p class="viewer-placeholder">Select an event from the timeline or the list to view its parameters.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>

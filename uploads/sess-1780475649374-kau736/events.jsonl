@@ -1,0 +1,6 @@
+{"sessionId":"sess-1780475649374-kau736","type":"session_initialized","timestamp":"2026-06-03T08:34:09.374Z","metadata":{"sessionId":"sess-1780475649374-kau736"}}
+{"sessionId":"sess-1780475649374-kau736","type":"requesting_screen_share","timestamp":"2026-06-03T08:34:09.384Z","metadata":{}}
+{"sessionId":"sess-1780475649374-kau736","type":"window_blur","timestamp":"2026-06-03T08:34:09.413Z","metadata":{}}
+{"sessionId":"sess-1780475649374-kau736","type":"window_focus","timestamp":"2026-06-03T08:34:15.310Z","metadata":{}}
+{"sessionId":"sess-1780475649374-kau736","type":"screen_share_surface_detected","timestamp":"2026-06-03T08:34:15.441Z","metadata":{"displaySurface":"window"}}
+{"sessionId":"sess-1780475649374-kau736","type":"error","timestamp":"2026-06-03T08:34:15.477Z","metadata":{"message":"Access Denied: You must share your ENTIRE screen/monitor. Selecting a single window or browser tab is not allowed. (Detected surface: window)","name":"Error"}}

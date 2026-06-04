@@ -1,0 +1,56 @@
+{"sessionId":"sess-1780475217419-35s6fn","type":"session_initialized","timestamp":"2026-06-03T08:26:57.419Z","metadata":{"sessionId":"sess-1780475217419-35s6fn"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"requesting_screen_share","timestamp":"2026-06-03T08:26:57.441Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"window_blur","timestamp":"2026-06-03T08:26:57.461Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"window_focus","timestamp":"2026-06-03T08:27:01.318Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"window_blur","timestamp":"2026-06-03T08:27:01.389Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"screen_share_surface_detected","timestamp":"2026-06-03T08:27:01.420Z","metadata":{"displaySurface":"monitor"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"screen_share_started","timestamp":"2026-06-03T08:27:01.428Z","metadata":{"hasAudio":false,"videoTrackLabel":"screen:362:0"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"recording_started","timestamp":"2026-06-03T08:27:01.441Z","metadata":{"mimeType":"video/webm"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"window_focus","timestamp":"2026-06-03T08:27:05.725Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_captured","timestamp":"2026-06-03T08:27:06.468Z","metadata":{"chunkIndex":1,"sizeBytes":1017242}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_uploaded","timestamp":"2026-06-03T08:27:06.570Z","metadata":{"chunkIndex":1,"serverPath":"/media/himanshu/New Volume/samta/screen-record-poc/uploads/sess-1780475217419-35s6fn/chunk-000001.webm"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"keydown","timestamp":"2026-06-03T08:27:09.505Z","metadata":{"key":"F11","code":"F11","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"resize","timestamp":"2026-06-03T08:27:09.537Z","metadata":{"outerWidth":1920,"outerHeight":1080,"innerWidth":1920,"innerHeight":1080}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"resize","timestamp":"2026-06-03T08:27:10.106Z","metadata":{"outerWidth":1920,"outerHeight":1036,"innerWidth":1920,"innerHeight":915}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_captured","timestamp":"2026-06-03T08:27:11.473Z","metadata":{"chunkIndex":2,"sizeBytes":1525023}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_uploaded","timestamp":"2026-06-03T08:27:11.532Z","metadata":{"chunkIndex":2,"serverPath":"/media/himanshu/New Volume/samta/screen-record-poc/uploads/sess-1780475217419-35s6fn/chunk-000002.webm"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"keydown","timestamp":"2026-06-03T08:27:11.646Z","metadata":{"key":"h","code":"KeyH","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"keydown","timestamp":"2026-06-03T08:27:11.730Z","metadata":{"key":"i","code":"KeyI","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"keydown","timestamp":"2026-06-03T08:27:11.913Z","metadata":{"key":"m","code":"KeyM","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"keydown","timestamp":"2026-06-03T08:27:11.995Z","metadata":{"key":"a","code":"KeyA","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"keydown","timestamp":"2026-06-03T08:27:12.157Z","metadata":{"key":"n","code":"KeyN","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"keydown","timestamp":"2026-06-03T08:27:12.191Z","metadata":{"key":"s","code":"KeyS","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"keydown","timestamp":"2026-06-03T08:27:12.359Z","metadata":{"key":"h","code":"KeyH","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"keydown","timestamp":"2026-06-03T08:27:12.492Z","metadata":{"key":"u","code":"KeyU","altKey":false,"ctrlKey":false,"shiftKey":false,"metaKey":false}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"window_blur","timestamp":"2026-06-03T08:27:13.648Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"visibility_hidden","timestamp":"2026-06-03T08:27:13.656Z","metadata":{"state":"hidden"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_captured","timestamp":"2026-06-03T08:27:17.239Z","metadata":{"chunkIndex":3,"sizeBytes":1044851}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_uploaded","timestamp":"2026-06-03T08:27:17.261Z","metadata":{"chunkIndex":3,"serverPath":"/media/himanshu/New Volume/samta/screen-record-poc/uploads/sess-1780475217419-35s6fn/chunk-000003.webm"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"visibility_visible","timestamp":"2026-06-03T08:27:17.963Z","metadata":{"state":"visible"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"window_focus","timestamp":"2026-06-03T08:27:17.970Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_captured","timestamp":"2026-06-03T08:27:21.472Z","metadata":{"chunkIndex":4,"sizeBytes":1146001}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_uploaded","timestamp":"2026-06-03T08:27:21.530Z","metadata":{"chunkIndex":4,"serverPath":"/media/himanshu/New Volume/samta/screen-record-poc/uploads/sess-1780475217419-35s6fn/chunk-000004.webm"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"window_blur","timestamp":"2026-06-03T08:27:25.907Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_captured","timestamp":"2026-06-03T08:27:26.472Z","metadata":{"chunkIndex":5,"sizeBytes":1232080}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_uploaded","timestamp":"2026-06-03T08:27:26.644Z","metadata":{"chunkIndex":5,"serverPath":"/media/himanshu/New Volume/samta/screen-record-poc/uploads/sess-1780475217419-35s6fn/chunk-000005.webm"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"window_focus","timestamp":"2026-06-03T08:27:27.187Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"window_blur","timestamp":"2026-06-03T08:27:30.734Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_captured","timestamp":"2026-06-03T08:27:31.469Z","metadata":{"chunkIndex":6,"sizeBytes":1364252}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_uploaded","timestamp":"2026-06-03T08:27:31.582Z","metadata":{"chunkIndex":6,"serverPath":"/media/himanshu/New Volume/samta/screen-record-poc/uploads/sess-1780475217419-35s6fn/chunk-000006.webm"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"window_focus","timestamp":"2026-06-03T08:27:31.859Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_captured","timestamp":"2026-06-03T08:27:36.470Z","metadata":{"chunkIndex":7,"sizeBytes":1081990}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_uploaded","timestamp":"2026-06-03T08:27:36.555Z","metadata":{"chunkIndex":7,"serverPath":"/media/himanshu/New Volume/samta/screen-record-poc/uploads/sess-1780475217419-35s6fn/chunk-000007.webm"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"window_blur","timestamp":"2026-06-03T08:27:39.037Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"window_focus","timestamp":"2026-06-03T08:27:40.887Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_captured","timestamp":"2026-06-03T08:27:41.476Z","metadata":{"chunkIndex":8,"sizeBytes":1399971}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_uploaded","timestamp":"2026-06-03T08:27:41.619Z","metadata":{"chunkIndex":8,"serverPath":"/media/himanshu/New Volume/samta/screen-record-poc/uploads/sess-1780475217419-35s6fn/chunk-000008.webm"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"window_blur","timestamp":"2026-06-03T08:27:44.334Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"window_focus","timestamp":"2026-06-03T08:27:45.779Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_captured","timestamp":"2026-06-03T08:27:46.489Z","metadata":{"chunkIndex":9,"sizeBytes":1358529}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_uploaded","timestamp":"2026-06-03T08:27:46.587Z","metadata":{"chunkIndex":9,"serverPath":"/media/himanshu/New Volume/samta/screen-record-poc/uploads/sess-1780475217419-35s6fn/chunk-000009.webm"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"test_ended_by_user","timestamp":"2026-06-03T08:27:50.240Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"recording_stopped","timestamp":"2026-06-03T08:27:50.253Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"session_completed","timestamp":"2026-06-03T08:27:50.269Z","metadata":{}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_captured","timestamp":"2026-06-03T08:27:50.285Z","metadata":{"chunkIndex":10,"sizeBytes":589970}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"chunk_uploaded","timestamp":"2026-06-03T08:27:50.381Z","metadata":{"chunkIndex":10,"serverPath":"/media/himanshu/New Volume/samta/screen-record-poc/uploads/sess-1780475217419-35s6fn/chunk-000010.webm"}}
+{"sessionId":"sess-1780475217419-35s6fn","type":"final_recording_created","timestamp":"2026-06-03T08:27:50.554Z","metadata":{"outputFile":"final-recording.webm","chunksCount":9,"totalSize":11168962}}
