@@ -6,9 +6,11 @@ let chunkIndex = 0;
 let isActive = false;
 let currentTab = 'chunks'; // 'chunks' or 'events'
 let chunkInterval = null; // Timer to capture and restart recording chunks
+let recordingStartTime = null;
 
 // DOM Elements
 const startTestBtn = document.getElementById('startTestBtn');
+const startScreenShareBtn = document.getElementById('startScreenShareBtn');
 const stopTestBtn = document.getElementById('stopTestBtn');
 const screenShareIndicator = document.getElementById('screenShareIndicator');
 const recordingIndicator = document.getElementById('recordingIndicator');
@@ -50,9 +52,9 @@ function getLogClass(type) {
 }
 
 // Log Event to UI console and send to Backend
-async function logEvent(type, metadata = {}) {
-  const timestamp = new Date().toISOString();
-  const timeStr = new Date().toLocaleTimeString();
+async function logEvent(type, metadata = {}, clientTimestamp = null) {
+  const timestamp = clientTimestamp || new Date().toISOString();
+  const timeStr = new Date(timestamp).toLocaleTimeString();
 
   // 1. Log to UI console
   const entry = document.createElement('div');
@@ -117,7 +119,22 @@ startTestBtn.addEventListener('click', async () => {
     refreshChunksBtn.disabled = false;
     refreshEventsBtn.disabled = false;
 
-    // 2. Request Display Stream
+    // Enable next action button
+    startScreenShareBtn.disabled = false;
+    stopTestBtn.disabled = false;
+  } catch (err) {
+    await logEvent('error', { message: err.message, name: err.name });
+    alert(`Failed to start session: ${err.message || err}`);
+    resetUI();
+  }
+});
+
+// Start Screen Share Handler
+startScreenShareBtn.addEventListener('click', async () => {
+  try {
+    startScreenShareBtn.disabled = true;
+    
+    // 1. Request Display Stream
     // Browser Context: The app cannot silently initiate screen sharing. This must be triggered by direct user action.
     // We request both video and audio. Note: Some browsers/OS environments might reject system audio stream selection.
     await logEvent('requesting_screen_share');
@@ -160,7 +177,7 @@ startTestBtn.addEventListener('click', async () => {
       videoTrackLabel: stream.getVideoTracks()[0]?.label
     });
 
-    // 3. Show stream in UI Video Element
+    // 2. Show stream in UI Video Element
     previewVideo.srcObject = stream;
     previewVideo.style.display = 'block';
     videoPlaceholder.style.display = 'none';
@@ -169,7 +186,7 @@ startTestBtn.addEventListener('click', async () => {
     screenShareIndicator.className = 'status-badge status-active';
     screenShareIndicator.textContent = 'Screen Share Active';
 
-    // 4. Detect user stopping screen share via Chrome native overlay controls
+    // 3. Detect user stopping screen share via Chrome native overlay controls
     if (videoTrack) {
       videoTrack.onended = () => {
         logEvent('screen_share_stopped', { reason: 'User clicked browser native overlay Stop button' });
@@ -177,7 +194,7 @@ startTestBtn.addEventListener('click', async () => {
       };
     }
 
-    // 5. Initialize MediaRecorder helper
+    // 4. Initialize MediaRecorder helper
     let mimeType = 'video/webm';
     if (!MediaRecorder.isTypeSupported(mimeType)) {
       const fallbacks = ['video/webm;codecs=vp8', 'video/webm;codecs=daala', 'video/webm;codecs=h264', 'video/mp4'];
@@ -189,39 +206,33 @@ startTestBtn.addEventListener('click', async () => {
       }
     }
 
-    await logEvent('recording_started', { mimeType });
+    const recorder = new MediaRecorder(stream, { mimeType });
+    mediaRecorder = recorder;
 
-    // Function to start a single independent recording slice
-    const recordNextChunk = () => {
-      if (!isActive) return;
+    let nextChunkStart = 0;
 
-      // Verify track status before starting recorder
-      const track = stream ? stream.getVideoTracks()[0] : null;
-      if (!track || track.readyState === 'ended') {
-        logEvent('screen_share_stopped', { reason: 'Detected ended track state before starting chunk' });
-        stopTest();
-        return;
-      }
-
-      mediaRecorder = new MediaRecorder(stream, { mimeType });
-
-      mediaRecorder.ondataavailable = async (e) => {
-        if (e.data && e.data.size > 0) {
-          chunkIndex++;
-          const currentChunk = chunkIndex;
-          await logEvent('chunk_captured', { chunkIndex: currentChunk, sizeBytes: e.data.size });
-          await uploadChunk(e.data, currentChunk);
-        }
-      };
-
-      mediaRecorder.start();
+    recorder.onstart = () => {
+      recordingStartTime = Date.now();
+      logEvent('recording_started', { mimeType }, new Date(recordingStartTime).toISOString());
     };
 
-    // Start recording the first chunk immediately
-    recordNextChunk();
+    recorder.ondataavailable = async (e) => {
+      if (e.data && e.data.size > 0) {
+        chunkIndex++;
+        const currentChunk = chunkIndex;
+        const chunkStart = nextChunkStart;
+        const baseTime = recordingStartTime || Date.now();
+        const chunkEnd = parseFloat(((Date.now() - baseTime) / 1000).toFixed(3));
+        nextChunkStart = chunkEnd;
 
-    // Periodically stop the current recorder to flush out a valid standalone WebM file,
-    // and immediately start the next recorder to capture the next slice.
+        await logEvent('chunk_captured', { chunkIndex: currentChunk, sizeBytes: e.data.size, startTime: chunkStart, endTime: chunkEnd });
+        await uploadChunk(e.data, currentChunk, chunkStart, chunkEnd);
+      }
+    };
+
+    recorder.start(5000);
+
+    // Periodically verify the screen track is still alive while the recorder emits chunks.
     chunkInterval = setInterval(() => {
       // Fail-safe: Detect if the user stopped screen sharing from the browser UI
       const track = stream ? stream.getVideoTracks()[0] : null;
@@ -230,23 +241,14 @@ startTestBtn.addEventListener('click', async () => {
         stopTest();
         return;
       }
-
-      if (isActive && mediaRecorder && mediaRecorder.state === 'recording') {
-        mediaRecorder.stop();
-        recordNextChunk();
-      }
     }, 5000);
     
     // Update UI Indicators
     recordingIndicator.className = 'status-badge status-recording';
     recordingIndicator.textContent = 'Recording (5s Chunks)';
-    
-    // Enable Stop Button
-    stopTestBtn.disabled = false;
-
   } catch (err) {
     await logEvent('error', { message: err.message, name: err.name });
-    alert(`Failed to start test proctoring: ${err.message || err}`);
+    alert(`Failed to start screen share/recording: ${err.message || err}`);
     resetUI();
   }
 });
@@ -293,6 +295,7 @@ function stopTest() {
   screenShareIndicator.textContent = 'Screen Share Off';
 
   startTestBtn.disabled = false;
+  startScreenShareBtn.disabled = true;
   stopTestBtn.disabled = true;
 
   logEvent('session_completed');
@@ -308,6 +311,7 @@ function resetUI() {
   }
 
   startTestBtn.disabled = false;
+  startScreenShareBtn.disabled = true;
   stopTestBtn.disabled = true;
   
   recordingIndicator.className = 'status-badge status-inactive';
@@ -321,13 +325,20 @@ function resetUI() {
 }
 
 // Upload file chunk to Backend
-async function uploadChunk(blob, index) {
+async function uploadChunk(blob, index, startTime, endTime) {
   try {
     // IMPORTANT: Form data layout matters. Append text/string fields BEFORE the file blob
     // so multer's diskStorage destination callback can properly parse req.body.sessionId.
     const formData = new FormData();
     formData.append('sessionId', sessionId);
     formData.append('chunkIndex', String(index));
+    formData.append('startTime', String(startTime));
+    formData.append('endTime', String(endTime));
+    
+    // Calculate and append the absolute start timestamp of the chunk
+    const absStart = recordingStartTime ? (recordingStartTime + Math.round(startTime * 1000)) : Date.now();
+    formData.append('absoluteStartTime', String(absStart));
+    
     formData.append('recording', blob, `chunk-${index}.webm`);
 
     const response = await fetch('/api/recording/chunk', {
@@ -337,7 +348,7 @@ async function uploadChunk(blob, index) {
 
     if (response.ok) {
       const data = await response.json();
-      await logEvent('chunk_uploaded', { chunkIndex: index, serverPath: data.path });
+      await logEvent('chunk_uploaded', { chunkIndex: index, startTime, endTime, serverPath: data.path });
       
       // Auto refresh inspection panel to show chunk list
       if (currentTab === 'chunks') {
@@ -352,33 +363,40 @@ async function uploadChunk(blob, index) {
   }
 }
 
+function getEventTimestamp(e) {
+  if (e && typeof e.timeStamp === 'number' && performance.timeOrigin) {
+    return new Date(performance.timeOrigin + e.timeStamp).toISOString();
+  }
+  return new Date().toISOString();
+}
+
 // Event Listeners for Proctoring Details
 
 // 1. Focus & Blur
-window.addEventListener('focus', () => {
-  if (isActive) logEvent('window_focus');
+window.addEventListener('focus', (e) => {
+  if (isActive) logEvent('window_focus', {}, getEventTimestamp(e));
 });
-window.addEventListener('blur', () => {
-  if (isActive) logEvent('window_blur');
+window.addEventListener('blur', (e) => {
+  if (isActive) logEvent('window_blur', {}, getEventTimestamp(e));
 });
 
 // 2. Tab/Page Visibility Change
-document.addEventListener('visibilitychange', () => {
+document.addEventListener('visibilitychange', (e) => {
   if (isActive) {
     const visibilityState = document.visibilityState;
-    logEvent(`visibility_${visibilityState}`, { state: visibilityState });
+    logEvent(`visibility_${visibilityState}`, { state: visibilityState }, getEventTimestamp(e));
   }
 });
 
 // 3. Window Resize
-window.addEventListener('resize', () => {
+window.addEventListener('resize', (e) => {
   if (isActive) {
     logEvent('resize', {
       outerWidth: window.outerWidth,
       outerHeight: window.outerHeight,
       innerWidth: window.innerWidth,
       innerHeight: window.innerHeight
-    });
+    }, getEventTimestamp(e));
   }
 });
 
@@ -389,7 +407,7 @@ document.addEventListener('copy', (e) => {
     logEvent('copy', {
       charCount: selectedText.length,
       snippet: selectedText.substring(0, 30)
-    });
+    }, getEventTimestamp(e));
   }
 });
 
@@ -405,7 +423,7 @@ document.addEventListener('paste', (e) => {
     logEvent('paste', {
       charCount: pastedText.length,
       snippet: pastedText.substring(0, 30)
-    });
+    }, getEventTimestamp(e));
   }
 });
 
@@ -420,7 +438,7 @@ document.addEventListener('keydown', (e) => {
       ctrlKey: e.ctrlKey,
       shiftKey: e.shiftKey,
       metaKey: e.metaKey
-    });
+    }, getEventTimestamp(e));
   }
 });
 
@@ -642,6 +660,17 @@ async function loadReviewSession(id) {
     }
 
     const data = await response.json();
+    
+    // Calibrate events timeline for visual video encoder/capture lag
+    const LATENCY_CALIBRATION_MS = 300; 
+    data.events = data.events.map(ev => {
+      // Only calibrate positive offsets (the recorded video portion)
+      if (ev.offsetSeconds >= 0) {
+        ev.offsetSeconds = parseFloat((ev.offsetSeconds - (LATENCY_CALIBRATION_MS / 1000)).toFixed(3));
+      }
+      return ev;
+    });
+
     activeSessionData = data;
 
     // Load video stream
@@ -673,10 +702,13 @@ async function loadReviewSession(id) {
 
 // Convert seconds into standard MM:SS
 function formatTime(seconds) {
-  if (isNaN(seconds) || seconds < 0) return '00:00';
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  if (isNaN(seconds)) return '00:00';
+  const isNegative = seconds < 0;
+  const absSeconds = Math.abs(seconds);
+  const mins = Math.floor(absSeconds / 60);
+  const secs = Math.floor(absSeconds % 60);
+  const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  return isNegative ? `-${formatted}` : formatted;
 }
 
 // Map event types to visual categories
@@ -700,7 +732,7 @@ function renderEventsList(events) {
     item.id = `event-row-${index}`;
     item.setAttribute('data-offset', event.offsetSeconds);
 
-    const timeStr = event.offsetSeconds >= 0 ? formatTime(event.offsetSeconds) : '--:--';
+    const timeStr = formatTime(event.offsetSeconds);
     const severity = getEventSeverityClass(event.type);
 
     item.innerHTML = `
@@ -725,7 +757,7 @@ function selectEvent(event, index) {
   eventMetadataViewer.innerHTML = `
     <div style="font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.4;">
       <span style="color: var(--color-info); font-weight:600;">Event:</span> ${event.type}
-      <span style="color: var(--color-info); font-weight:600;">Offset:</span> ${event.offsetSeconds >= 0 ? event.offsetSeconds + 's' : 'N/A (Before recording)'}
+      <span style="color: var(--color-info); font-weight:600;">Offset:</span> ${event.offsetSeconds + 's'}
       <span style="color: var(--color-info); font-weight:600;">Timestamp:</span> ${event.timestamp}
       <span style="color: var(--color-info); font-weight:600; display:block; margin-top:0.5rem;">Metadata:</span>
       <pre style="color: #94a3b8; font-size: 0.75rem; white-space: pre-wrap; margin-top: 0.25rem;">${JSON.stringify(event.metadata, null, 2)}</pre>
@@ -743,8 +775,8 @@ function selectEvent(event, index) {
   }
 
   // Seek video
-  if (event.offsetSeconds >= 0 && reviewVideo.src) {
-    reviewVideo.currentTime = event.offsetSeconds;
+  if (reviewVideo.src) {
+    reviewVideo.currentTime = Math.max(0, event.offsetSeconds || 0);
   }
 }
 
