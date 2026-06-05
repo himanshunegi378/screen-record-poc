@@ -529,8 +529,8 @@ app.get('/api/recordings', (req, res) => {
           sessions.push({
             sessionId: file,
             videoUrl: hasFinalRecording
-              ? `http://localhost:8000/uploads/${file}/final-recording.webm`
-              : (hasChunks ? `http://localhost:8000/api/session/${file}/video` : null),
+              ? `${req.protocol}://${req.get('host')}/uploads/${file}/final-recording.webm`
+              : (hasChunks ? `${req.protocol}://${req.get('host')}/api/session/${file}/video` : null),
             eventCount,
             createdAt,
             hasFinalRecording
@@ -599,8 +599,8 @@ app.get('/api/recordings/:sessionId', (req, res) => {
     res.status(200).json({
       sessionId,
       videoUrl: hasFinalRecording
-        ? `http://localhost:8000/uploads/${safeSessionId}/final-recording.webm`
-        : (hasChunks ? `http://localhost:8000/api/session/${safeSessionId}/video` : null),
+        ? `${req.protocol}://${req.get('host')}/uploads/${safeSessionId}/final-recording.webm`
+        : (hasChunks ? `${req.protocol}://${req.get('host')}/api/session/${safeSessionId}/video` : null),
       timelineStartType: startType,
       timelineStartTimestamp: timelineStartTimestamp,
       events: enrichedEvents
