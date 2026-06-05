@@ -15,9 +15,17 @@ const finalizationRerunRequested = new Set();
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-// Enable CORS for http://localhost:5173
+// Enable CORS for allowed origins
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'https://admin.tatvauat.samta.ai'
+];
+
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+  const origin = req.headers.origin;
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
@@ -573,12 +581,21 @@ app.get('/api/recordings/:sessionId', (req, res) => {
 
     // 1. Locate timeline start timestamp
     const chunkFiles = getOrderedChunksMetadata(sessionDir);
-    if (chunkFiles.length === 0 || !chunkFiles[0].absoluteStartTime) {
-      return res.status(400).json({ error: 'Unable to establish a timeline zero timestamp. No recording chunks with absolute start times found.' });
+    let tZero;
+    let startType;
+
+    if (chunkFiles.length > 0 && chunkFiles[0].absoluteStartTime) {
+      tZero = chunkFiles[0].absoluteStartTime;
+      startType = 'chunk_metadata';
+    } else if (rawEvents.length > 0) {
+      const initEvent = rawEvents.find(e => e.type === 'session_initialized');
+      const firstEvent = initEvent || rawEvents[0];
+      tZero = Date.parse(firstEvent.timestamp);
+      startType = initEvent ? 'session_initialized' : 'first_event';
+    } else {
+      return res.status(400).json({ error: 'Unable to establish a timeline zero timestamp. No recording chunks or events found.' });
     }
 
-    const tZero = chunkFiles[0].absoluteStartTime;
-    const startType = 'chunk_metadata';
     const timelineStartTimestamp = new Date(tZero).toISOString();
 
     // 2. Map events to include offsetSeconds from tZero
