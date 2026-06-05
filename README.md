@@ -27,7 +27,7 @@ screen-recording-poc/
 ```
 
 ---
-
+ 
 ## 🚀 How to Run
 
 1. **Install dependencies**:
