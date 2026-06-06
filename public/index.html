@@ -171,8 +171,32 @@
               <h2>Session Timeline Events</h2>
             </div>
             <div class="card-body review-events-body">
+              <div class="event-review-toolbar">
+                <label class="event-search-field" for="eventSearchInput">
+                  <span class="event-search-icon">⌕</span>
+                  <input id="eventSearchInput" type="search" placeholder="Search events..." autocomplete="off">
+                </label>
+                <label class="event-filter-field" for="eventTypeFilter">
+                  <span>Event Type</span>
+                  <select id="eventTypeFilter">
+                    <option value="all">All</option>
+                  </select>
+                </label>
+              </div>
+              <div class="event-type-chips" id="eventTypeChips">
+                <!-- Dynamic event filter chips -->
+              </div>
+              <div class="events-table-head">
+                <span>Time</span>
+                <span>Event Type</span>
+                <span>Severity</span>
+                <span>Description</span>
+              </div>
               <div class="events-scroll-container" id="reviewEventsList">
                 <!-- Dynamic events list -->
+              </div>
+              <div class="events-list-footer" id="eventsListFooter">
+                0 events
               </div>
             </div>
           </div>

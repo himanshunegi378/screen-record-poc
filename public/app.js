@@ -627,6 +627,12 @@ async function loadRecordingsList() {
 
 // Detailed Review controller
 let activeSessionData = null;
+let currentSessionDuration = 0;
+const eventReviewState = {
+  events: [],
+  query: '',
+  selectedType: 'all'
+};
 
 async function loadReviewSession(id) {
   const reviewSessionId = document.getElementById('reviewSessionId');
@@ -652,6 +658,7 @@ async function loadReviewSession(id) {
   markers.forEach(m => m.remove());
   timelinePlayhead.style.left = '0%';
   videoTimeDisplay.textContent = '00:00 / 00:00';
+  currentSessionDuration = 0;
 
   try {
     const response = await fetch(`/api/recordings/${id}`);
@@ -677,18 +684,43 @@ async function loadReviewSession(id) {
     reviewVideo.src = data.videoUrl;
     reviewVideo.load();
 
-    // Fill events list
-    renderEventsList(data.events);
+    initializeEventReviewPanel(data.events);
 
-    // Render timeline markers once video metadata (duration) becomes available
+    // Setup loadedmetadata logic to handle missing duration / Infinity
     reviewVideo.onloadedmetadata = () => {
-      setupTimeline(data.events, reviewVideo.duration);
+      const initializeTimeline = (finalDuration) => {
+        currentSessionDuration = finalDuration;
+        setupTimeline(data.events, currentSessionDuration);
+        
+        // Register timeupdate listener only after duration is established
+        reviewVideo.ontimeupdate = () => {
+          syncPlaybackState(reviewVideo.currentTime, currentSessionDuration);
+        };
+      };
+
+      let duration = reviewVideo.duration;
+
+      if (!isFinite(duration) || isNaN(duration) || duration <= 0) {
+        // Seek workaround to force browser to parse index/metadata
+        reviewVideo.currentTime = 1e10;
+        
+        reviewVideo.addEventListener('seeked', function onSeeked() {
+          reviewVideo.removeEventListener('seeked', onSeeked);
+          reviewVideo.currentTime = 0;
+          
+          let durationAfterSeek = reviewVideo.duration;
+          if (!isFinite(durationAfterSeek) || isNaN(durationAfterSeek) || durationAfterSeek <= 0) {
+            // Fallback: use the offset of the last event
+            const lastEvent = data.events[data.events.length - 1];
+            durationAfterSeek = lastEvent && lastEvent.offsetSeconds > 0 ? lastEvent.offsetSeconds : 0;
+          }
+          initializeTimeline(durationAfterSeek);
+        }, { once: true });
+      } else {
+        initializeTimeline(duration);
+      }
     };
 
-    // Synchronize playhead position and list highlight
-    reviewVideo.ontimeupdate = () => {
-      syncPlaybackState(reviewVideo.currentTime, reviewVideo.duration);
-    };
 
   } catch (err) {
     reviewEventsList.innerHTML = `
@@ -711,7 +743,107 @@ function formatTime(seconds) {
   return isNegative ? `-${formatted}` : formatted;
 }
 
-// Map event types to visual categories
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function humanizeEventType(type) {
+  return String(type || 'event')
+    .split('_')
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function getEventTypeGroup(type) {
+  if (['window_blur', 'visibility_hidden', 'visibility_visible', 'window_focus'].includes(type)) {
+    return 'navigation';
+  }
+  if (['copy', 'paste', 'keydown'].includes(type)) {
+    return 'key_press';
+  }
+  if (['screen_share_started', 'screen_share_stopped', 'screen_share_surface_detected', 'requesting_screen_share'].includes(type)) {
+    return 'screen_share';
+  }
+  if (['recording_started', 'recording_stopped', 'chunk_captured', 'chunk_uploaded', 'final_recording_created', 'session_initialized', 'session_completed', 'test_ended_by_user', 'test_ended_by_navigation'].includes(type)) {
+    return 'system';
+  }
+  if (['error', 'chunk_upload_failed', 'chunk_upload_network_error'].includes(type)) {
+    return 'violation';
+  }
+  return 'system';
+}
+
+function getEventGroupLabel(group) {
+  const labels = {
+    all: 'All',
+    violation: 'Violations',
+    key_press: 'Key Presses',
+    navigation: 'Navigation',
+    screen_share: 'Screen Share',
+    system: 'System'
+  };
+  return labels[group] || humanizeEventType(group);
+}
+
+function getEventSeverity(type) {
+  if (['window_blur', 'visibility_hidden', 'screen_share_stopped', 'error', 'chunk_upload_failed', 'chunk_upload_network_error'].includes(type)) {
+    return 'High';
+  }
+  if (['copy', 'paste', 'screen_share_surface_detected', 'test_ended_by_navigation'].includes(type)) {
+    return 'Medium';
+  }
+  return 'Low';
+}
+
+function getEventDescription(event) {
+  const metadata = event.metadata || {};
+  const descriptions = {
+    session_initialized: 'Session initialized for review recording.',
+    requesting_screen_share: 'Candidate was prompted to share the entire screen.',
+    screen_share_surface_detected: `Shared surface detected: ${metadata.displaySurface || 'unknown'}.`,
+    screen_share_started: 'Screen sharing started successfully.',
+    screen_share_stopped: 'Candidate stopped screen sharing.',
+    recording_started: 'Screen recording started.',
+    recording_stopped: 'Screen recording stopped.',
+    session_completed: 'Session was completed.',
+    test_ended_by_user: 'Candidate ended the test session.',
+    test_ended_by_navigation: 'Session ended because candidate navigated away.',
+    window_blur: 'Focus moved away from the test window.',
+    window_focus: 'Focus returned to the test window.',
+    visibility_hidden: 'Test tab became hidden.',
+    visibility_visible: 'Test tab became visible.',
+    copy: `Copy attempt detected${metadata.charCount ? ` (${metadata.charCount} chars)` : ''}.`,
+    paste: `Paste attempt detected${metadata.charCount ? ` (${metadata.charCount} chars)` : ''}.`,
+    keydown: metadata.key ? `Key press captured: ${metadata.key}.` : 'Keyboard activity detected.',
+    resize: 'Browser window size changed.',
+    chunk_captured: `Recording chunk ${metadata.chunkIndex || ''} captured.`.trim(),
+    chunk_uploaded: `Recording chunk ${metadata.chunkIndex || ''} uploaded.`.trim(),
+    chunk_upload_failed: 'Recording chunk upload failed.',
+    chunk_upload_network_error: 'Network error during chunk upload.',
+    final_recording_created: 'Final review video was generated.',
+    error: metadata.message || 'Client error recorded.'
+  };
+  return descriptions[event.type] || `${humanizeEventType(event.type)} event captured.`;
+}
+
+function getEventPresentation(event) {
+  const group = getEventTypeGroup(event.type);
+  return {
+    group,
+    groupLabel: getEventGroupLabel(group),
+    label: humanizeEventType(event.type),
+    severity: getEventSeverity(event.type),
+    description: getEventDescription(event)
+  };
+}
+
+// Map event types to visual categories for timeline markers.
 function getEventSeverityClass(type) {
   if (['window_blur', 'visibility_hidden', 'error', 'chunk_upload_failed', 'chunk_upload_network_error'].includes(type)) {
     return 'warn';
@@ -722,23 +854,119 @@ function getEventSeverityClass(type) {
   return 'interact';
 }
 
-function renderEventsList(events) {
+function initializeEventReviewPanel(events) {
+  eventReviewState.events = events || [];
+  eventReviewState.query = '';
+  eventReviewState.selectedType = 'all';
+
+  const searchInput = document.getElementById('eventSearchInput');
+  const typeFilter = document.getElementById('eventTypeFilter');
+  if (searchInput) searchInput.value = '';
+  if (typeFilter) typeFilter.value = 'all';
+
+  renderEventTypeFilters();
+  renderEventsList();
+}
+
+function getEventTypeCounts() {
+  const counts = { all: eventReviewState.events.length };
+  eventReviewState.events.forEach(event => {
+    const group = getEventTypeGroup(event.type);
+    counts[group] = (counts[group] || 0) + 1;
+  });
+  return counts;
+}
+
+function renderEventTypeFilters() {
+  const chips = document.getElementById('eventTypeChips');
+  const typeFilter = document.getElementById('eventTypeFilter');
+  const counts = getEventTypeCounts();
+  const orderedTypes = ['all', 'violation', 'key_press', 'navigation', 'screen_share', 'system']
+    .filter(type => type === 'all' || counts[type]);
+
+  if (typeFilter) {
+    typeFilter.innerHTML = orderedTypes
+      .map(type => `<option value="${type}">${getEventGroupLabel(type)}</option>`)
+      .join('');
+    typeFilter.value = eventReviewState.selectedType;
+  }
+
+  if (!chips) return;
+  chips.innerHTML = orderedTypes
+    .map(type => `
+      <button class="event-type-chip chip-${type}${eventReviewState.selectedType === type ? ' active' : ''}" type="button" data-event-type="${type}">
+        ${getEventGroupLabel(type)}
+        <span>${counts[type] || 0}</span>
+      </button>
+    `)
+    .join('');
+}
+
+function getFilteredEvents() {
+  const query = eventReviewState.query.trim().toLowerCase();
+
+  return eventReviewState.events
+    .map((event, index) => ({ event, index, presentation: getEventPresentation(event) }))
+    .filter(({ event, presentation }) => {
+      if (eventReviewState.selectedType !== 'all' && presentation.group !== eventReviewState.selectedType) {
+        return false;
+      }
+
+      if (!query) return true;
+
+      const haystack = [
+        event.type,
+        presentation.label,
+        presentation.groupLabel,
+        presentation.severity,
+        presentation.description,
+        event.timestamp,
+        JSON.stringify(event.metadata || {})
+      ].join(' ').toLowerCase();
+
+      return haystack.includes(query);
+    });
+}
+
+function renderEventsList() {
   const list = document.getElementById('reviewEventsList');
+  const footer = document.getElementById('eventsListFooter');
+  const filteredEvents = getFilteredEvents();
   list.innerHTML = '';
 
-  events.forEach((event, index) => {
+  if (footer) {
+    const total = eventReviewState.events.length;
+    footer.textContent = `${filteredEvents.length} of ${total} events`;
+  }
+
+  if (filteredEvents.length === 0) {
+    list.innerHTML = `
+      <div class="event-empty-state">
+        <strong>No events found</strong>
+        <span>Try a different search or event type.</span>
+      </div>
+    `;
+    return;
+  }
+
+  filteredEvents.forEach(({ event, index, presentation }) => {
     const item = document.createElement('div');
     item.className = 'event-item';
     item.id = `event-row-${index}`;
     item.setAttribute('data-offset', event.offsetSeconds);
 
     const timeStr = formatTime(event.offsetSeconds);
-    const severity = getEventSeverityClass(event.type);
+    const severityKey = presentation.severity.toLowerCase();
 
     item.innerHTML = `
-      <span class="event-item-time">${timeStr}</span>
-      <span class="event-item-type">${event.type.replace(/_/g, ' ')}</span>
-      <span class="event-item-badge event-badge-${severity}">${severity}</span>
+      <button class="event-play-btn" type="button" aria-label="Jump to ${escapeHtml(timeStr)}">▶</button>
+      <span class="event-item-time">${escapeHtml(timeStr)}</span>
+      <span class="event-item-type">
+        <span class="event-type-icon event-icon-${presentation.group}"></span>
+        ${escapeHtml(presentation.label)}
+      </span>
+      <span class="event-item-badge event-badge-${severityKey}">${escapeHtml(presentation.severity)}</span>
+      <span class="event-item-description">${escapeHtml(presentation.description)}</span>
     `;
 
     item.addEventListener('click', () => {
@@ -752,15 +980,16 @@ function renderEventsList(events) {
 function selectEvent(event, index) {
   const reviewVideo = document.getElementById('reviewVideo');
   const eventMetadataViewer = document.getElementById('eventMetadataViewer');
+  const presentation = getEventPresentation(event);
 
   // Update details viewer
   eventMetadataViewer.innerHTML = `
     <div style="font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.4;">
-      <span style="color: var(--color-info); font-weight:600;">Event:</span> ${event.type}
-      <span style="color: var(--color-info); font-weight:600;">Offset:</span> ${event.offsetSeconds + 's'}
-      <span style="color: var(--color-info); font-weight:600;">Timestamp:</span> ${event.timestamp}
+      <span style="color: var(--color-info); font-weight:600;">Event:</span> ${escapeHtml(presentation.label)}
+      <span style="color: var(--color-info); font-weight:600;">Offset:</span> ${escapeHtml(event.offsetSeconds + 's')}
+      <span style="color: var(--color-info); font-weight:600;">Timestamp:</span> ${escapeHtml(event.timestamp)}
       <span style="color: var(--color-info); font-weight:600; display:block; margin-top:0.5rem;">Metadata:</span>
-      <pre style="color: #94a3b8; font-size: 0.75rem; white-space: pre-wrap; margin-top: 0.25rem;">${JSON.stringify(event.metadata, null, 2)}</pre>
+      <pre style="color: #94a3b8; font-size: 0.75rem; white-space: pre-wrap; margin-top: 0.25rem;">${escapeHtml(JSON.stringify(event.metadata, null, 2))}</pre>
     </div>
   `;
 
@@ -851,13 +1080,14 @@ function syncPlaybackState(currentTime, duration) {
         const viewer = document.getElementById('eventMetadataViewer');
         if (viewer.querySelector('.viewer-placeholder')) {
           const event = activeSessionData.events[closestIdx];
+          const presentation = getEventPresentation(event);
           viewer.innerHTML = `
             <div style="font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.4;">
-              <span style="color: var(--color-info); font-weight:600;">Event:</span> ${event.type}
-              <span style="color: var(--color-info); font-weight:600;">Offset:</span> ${event.offsetSeconds}s
-              <span style="color: var(--color-info); font-weight:600;">Timestamp:</span> ${event.timestamp}
+              <span style="color: var(--color-info); font-weight:600;">Event:</span> ${escapeHtml(presentation.label)}
+              <span style="color: var(--color-info); font-weight:600;">Offset:</span> ${escapeHtml(event.offsetSeconds + 's')}
+              <span style="color: var(--color-info); font-weight:600;">Timestamp:</span> ${escapeHtml(event.timestamp)}
               <span style="color: var(--color-info); font-weight:600; display:block; margin-top:0.5rem;">Metadata:</span>
-              <pre style="color: #94a3b8; font-size: 0.75rem; white-space: pre-wrap; margin-top: 0.25rem;">${JSON.stringify(event.metadata, null, 2)}</pre>
+              <pre style="color: #94a3b8; font-size: 0.75rem; white-space: pre-wrap; margin-top: 0.25rem;">${escapeHtml(JSON.stringify(event.metadata, null, 2))}</pre>
             </div>
           `;
         }
@@ -865,6 +1095,27 @@ function syncPlaybackState(currentTime, duration) {
     }
   }
 }
+
+document.getElementById('eventSearchInput')?.addEventListener('input', (e) => {
+  eventReviewState.query = e.target.value;
+  renderEventsList();
+});
+
+document.getElementById('eventTypeFilter')?.addEventListener('change', (e) => {
+  eventReviewState.selectedType = e.target.value;
+  renderEventTypeFilters();
+  renderEventsList();
+});
+
+document.getElementById('eventTypeChips')?.addEventListener('click', (e) => {
+  const chip = e.target.closest('[data-event-type]');
+  if (!chip) return;
+  eventReviewState.selectedType = chip.getAttribute('data-event-type') || 'all';
+  const typeFilter = document.getElementById('eventTypeFilter');
+  if (typeFilter) typeFilter.value = eventReviewState.selectedType;
+  renderEventTypeFilters();
+  renderEventsList();
+});
 
 // Initialize router immediately
 router();
